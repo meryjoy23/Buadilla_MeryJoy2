@@ -29,21 +29,11 @@ class AuthController extends Controller
 
         if ($this->auth->login($username, $password)) {
 
-            // ✅ Get the user record to store role in session
-            $this->call->model('UsersModel');
-            $user = $this->UsersModel->get_by_username($username);
-
-            if ($user) {
-                $_SESSION['id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'] ?? 'user'; // 🔥 Add this line
-            }
-
-            // ✅ Redirect based on role
-            if ($_SESSION['role'] === 'admin') {
-                redirect('/users');
+            // check role and redirect accordingly
+            if ($this->auth->has_role('admin')) {
+                redirect('/users'); // full access page
             } else {
-                redirect('auth/dashboard');
+                redirect('auth/dashboard'); // user view-only page
             }
 
         } else {
@@ -53,7 +43,6 @@ class AuthController extends Controller
 
     $this->call->view('auth/login');
 }
-
 
 
 public function dashboard()
